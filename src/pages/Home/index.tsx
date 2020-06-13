@@ -1,27 +1,75 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Feather as Icon } from "@expo/vector-icons";
+import axios from "axios";
 import {
   View,
   ImageBackground,
   Image,
   StyleSheet,
   Text,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
+import RNPickerSelect from "react-native-picker-select";
+
+interface Items {
+  label: string;
+  value: string;
+}
+
+interface IBGEUFResponse {
+  sigla: string;
+}
+
+interface IBGECityResponse {
+  nome: string;
+}
 
 const Home = () => {
-  const [uf, setUf] = useState("");
-  const [city, setCity] = useState("");
+  const [uf, setUf] = useState("0");
+  const [city, setCity] = useState("0");
+  const [itemsUf, setItemsUf] = useState<Items[]>([]);
+  const [itemsCity, setItemsCity] = useState<Items[]>([]);
 
   const navigation = useNavigation();
 
   function handleNavigateToPoints() {
     navigation.navigate("Points", { uf, city });
   }
+
+  useEffect(() => {
+    axios
+      .get<IBGEUFResponse[]>(
+        "https://servicodados.ibge.gov.br/api/v1/localidades/estados"
+      )
+      .then((response) => {
+        const UFInitials = response.data.map((UF) => {
+          return { label: UF.sigla, value: UF.sigla };
+        });
+
+        setItemsUf(UFInitials);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (uf === "0") {
+      return;
+    }
+
+    axios
+      .get<IBGECityResponse[]>(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`
+      )
+      .then((response) => {
+        const cityNames = response.data.map((city) => {
+          return { label: city.nome, value: city.nome };
+        });
+
+        setItemsCity(cityNames);
+      });
+  }, [uf]);
 
   return (
     <KeyboardAvoidingView
@@ -46,22 +94,20 @@ const Home = () => {
           </View>
         </View>
         <View style={styles.footer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite a UF"
+          <RNPickerSelect
+            style={pickerSelectStyles}
+            placeholder={{ label: "Selecione a UF", value: "0" }}
             value={uf}
-            maxLength={2}
-            autoCapitalize="characters"
-            autoCorrect={false}
-            onChangeText={setUf}
-          ></TextInput>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite a cidade"
+            onValueChange={setUf}
+            items={itemsUf}
+          />
+          <RNPickerSelect
+            style={pickerSelectStyles}
+            placeholder={{ label: "Selecione a cidade", value: "0" }}
             value={city}
-            autoCorrect={false}
-            onChangeText={setCity}
-          ></TextInput>
+            onValueChange={setCity}
+            items={itemsCity}
+          />
 
           <RectButton style={styles.button} onPress={handleNavigateToPoints}>
             <View style={styles.buttonIcon}>
@@ -143,6 +189,27 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontFamily: "Roboto_500Medium",
     fontSize: 16,
+  },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    height: 60,
+    backgroundColor: "#FFF",
+    borderRadius: 8,
+    marginBottom: 8,
+    paddingHorizontal: 24,
+    fontSize: 16,
+    color: "#000",
+  },
+  inputAndroid: {
+    height: 60,
+    backgroundColor: "#FFF",
+    borderRadius: 8,
+    marginBottom: 8,
+    paddingHorizontal: 24,
+    fontSize: 16,
+    color: "#000",
   },
 });
 
