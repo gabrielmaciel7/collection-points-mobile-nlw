@@ -35,10 +35,6 @@ const Home = () => {
 
   const navigation = useNavigation();
 
-  function handleNavigateToPoints() {
-    navigation.navigate("Points", { uf, city });
-  }
-
   useEffect(() => {
     axios
       .get<IBGEUFResponse[]>(
@@ -71,6 +67,10 @@ const Home = () => {
       });
   }, [uf]);
 
+  function handleNavigateToPoints() {
+    navigation.navigate("Points", { uf, city });
+  }
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -98,14 +98,14 @@ const Home = () => {
             style={pickerSelectStyles}
             placeholder={{ label: "Selecione a UF", value: "0" }}
             value={uf}
-            onValueChange={setUf}
+            onValueChange={(value) => setUf(value)}
             items={itemsUf}
           />
           <RNPickerSelect
             style={pickerSelectStyles}
             placeholder={{ label: "Selecione a cidade", value: "0" }}
             value={city}
-            onValueChange={setCity}
+            onValueChange={(value) => setCity(value)}
             items={itemsCity}
           />
 
@@ -196,7 +196,7 @@ const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
     height: 60,
     backgroundColor: "#FFF",
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 8,
     paddingHorizontal: 24,
     fontSize: 16,
@@ -205,7 +205,7 @@ const pickerSelectStyles = StyleSheet.create({
   inputAndroid: {
     height: 60,
     backgroundColor: "#FFF",
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 8,
     paddingHorizontal: 24,
     fontSize: 16,
