@@ -96,15 +96,17 @@ const Home = () => {
         <View style={styles.footer}>
           <RNPickerSelect
             style={pickerSelectStyles}
+            useNativeAndroidPickerStyle={false}
             placeholder={{ label: "Selecione a UF", value: "0" }}
-            value={uf}
+            //value={uf}
             onValueChange={(value) => setUf(value)}
             items={itemsUf}
           />
           <RNPickerSelect
             style={pickerSelectStyles}
+            useNativeAndroidPickerStyle={false}
             placeholder={{ label: "Selecione a cidade", value: "0" }}
-            value={city}
+            //value={city}
             onValueChange={(value) => setCity(value)}
             items={itemsCity}
           />
